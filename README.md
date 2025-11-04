@@ -28,7 +28,3 @@ streamlit run app.py
 ```
 
 Setelah aplikasi terbuka di browser, unggah gambar dan coba operasi di sidebar.
-
-Catatan:
-- Jika ada error terkait paket yang tidak terinstall, jalankan kembali langkah install.
-- Untuk pengolahan yang lebih kompleks (misal deconvolution lebih baik), Anda bisa memperluas modul restorasi.
