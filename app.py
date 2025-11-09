@@ -66,12 +66,18 @@ def apply_filter(img, method, ksize=3, sigma=1.0):
 def apply_restoration(img, method, param=3):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     if method == "Denoise NL-Means":
-        img_f = gray.astype(np.float32) / 255.0
-        sigma_est = np.mean(estimate_sigma(img_f, channel_axis=None))
-        patch_kw = dict(patch_size=5, patch_distance=6, fast_mode=True)
-        den = denoise_nl_means(img_f, h=param * sigma_est, sigma=sigma_est, **patch_kw)
-        den = img_as_ubyte(den)
-        return cv2.cvtColor(den, cv2.COLOR_GRAY2BGR)
+        try:
+            img_f = gray.astype(np.float32) / 255.0
+            sigma_est = np.mean(estimate_sigma(img_f, channel_axis=None))
+            patch_kw = dict(patch_size=5, patch_distance=6, fast_mode=True)
+            den = denoise_nl_means(img_f, h=param * sigma_est, sigma=sigma_est, **patch_kw)
+            den = img_as_ubyte(den)
+            return cv2.cvtColor(den, cv2.COLOR_GRAY2BGR)
+        except Exception as e:
+            # Fallback: use cv2 fastNlMeansDenoising if estimate_sigma fails
+            h_param = max(3, param * 10)
+            den = cv2.fastNlMeansDenoising(gray, None, h=h_param, templateWindowSize=7, searchWindowSize=21)
+            return cv2.cvtColor(den, cv2.COLOR_GRAY2BGR)
     if method == "Wiener (simple)":
         psf_size = max(3, int(param))
         psf = np.ones((psf_size, psf_size)) / (psf_size * psf_size)
